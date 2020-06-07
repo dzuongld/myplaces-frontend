@@ -1,29 +1,39 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import UsersList from '../components/UsersList'
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner'
+import ErrorModal from '../../shared/components/UIElements/ErrorModal'
+import { useHttpClient } from '../../shared/hooks/http-hook'
 
 const Users = () => {
-    const USERS = [
-        {
-            id: '1',
-            image: 'https://randomuser.me/api/portraits/women/77.jpg',
-            name: 'An',
-            places: 3,
-        },
-        {
-            id: '2',
-            image: 'https://randomuser.me/api/portraits/men/85.jpg',
-            name: 'Binh',
-            places: 8,
-        },
-        {
-            id: '3',
-            image: 'https://randomuser.me/api/portraits/women/12.jpg',
-            name: 'Chi',
-            places: 5,
-        },
-    ]
+    const [users, setUsers] = useState()
+    const { loading, error, sendRequest, clearError } = useHttpClient()
 
-    return <UsersList items={USERS} />
+    // should not use async in useeffect
+    // declare an inside function and execute instead
+    useEffect(() => {
+        const getUsers = async () => {
+            try {
+                const url = process.env.REACT_APP_BACKEND_URL
+                const data = await sendRequest(url + '/api/users')
+                setUsers(data.users)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        getUsers()
+    }, [sendRequest])
+
+    return (
+        <React.Fragment>
+            <ErrorModal error={error} onClear={clearError} />
+            {loading && (
+                <div className="center">
+                    <LoadingSpinner />
+                </div>
+            )}
+            {!loading && users && <UsersList items={users} />}
+        </React.Fragment>
+    )
 }
 
 export default Users
