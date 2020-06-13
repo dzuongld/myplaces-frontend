@@ -14,6 +14,7 @@ import { useForm } from '../../shared/hooks/form-hook'
 import { useHttpClient } from '../../shared/hooks/http-hook'
 import Button from '../../shared/components/FormElements/Button'
 import { AuthContext } from '../../shared/context/auth-context'
+import ImageUpload from '../../shared/components/FormElements/ImageUpload'
 
 const Auth = () => {
     const auth = useContext(AuthContext)
@@ -53,17 +54,18 @@ const Auth = () => {
                     { 'Content-Type': 'application/json' }
                 )
             } else {
+                // built-in inside browser
+                const formData = new FormData()
+                formData.append('email', formState.inputs.email.value)
+                formData.append('name', formState.inputs.name.value)
+                formData.append('password', formState.inputs.password.value)
+                formData.append('image', formState.inputs.image.value)
+
+                // no need to set headers
                 data = await sendRequest(
                     url + '/api/users/signup',
                     'POST',
-                    JSON.stringify({
-                        name: formState.inputs.name.value,
-                        email: formState.inputs.email.value,
-                        password: formState.inputs.password.value,
-                    }),
-                    {
-                        'Content-Type': 'application/json',
-                    }
+                    formData
                 )
             }
 
@@ -80,6 +82,7 @@ const Auth = () => {
                 {
                     ...formState.inputs,
                     name: undefined,
+                    image: undefined,
                 },
                 formState.inputs.email.isValid &&
                     formState.inputs.password.isValid
@@ -90,6 +93,10 @@ const Auth = () => {
                     ...formState.inputs,
                     name: {
                         value: '',
+                        isValid: false,
+                    },
+                    image: {
+                        value: null,
                         isValid: false,
                     },
                 },
@@ -119,6 +126,15 @@ const Auth = () => {
                         onInput={inputHandler}
                     />
                 )}
+                {!loginMode && (
+                    <ImageUpload
+                        center
+                        id="image"
+                        onInput={inputHandler}
+                        errorText="Please provide an image"
+                    />
+                )}
+
                 <form onSubmit={authSubmit}>
                     <Input
                         element="input"
