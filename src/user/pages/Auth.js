@@ -69,7 +69,7 @@ const Auth = () => {
                 )
             }
 
-            auth.login(data.user.id)
+            auth.login(data.userId, data.token)
         } catch (error) {
             console.log(error)
         }

@@ -40,11 +40,12 @@ const NewPlace = () => {
             formData.append('title', formState.inputs.title.value)
             formData.append('description', formState.inputs.description.value)
             formData.append('address', formState.inputs.address.value)
-            formData.append('creator', auth.userId)
             formData.append('image', formState.inputs.image.value)
 
             const url = process.env.REACT_APP_BACKEND_URL
-            await sendRequest(url + '/api/places', 'POST', formData)
+            await sendRequest(url + '/api/places', 'POST', formData, {
+                Authorization: 'Bearer ' + auth.token,
+            })
 
             // redirect
             history.push('/')
